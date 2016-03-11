@@ -154,9 +154,11 @@ public:
         if(!redirect || use_cache)
             return 1;
         char* exe = new char[100];
+        int status = 0;
         for(char* c : *l){
             sprintf(exe, bash.c_str(), c);
-            system(exe);
+            status = system(exe);
+            Logger::getLogger()->logBash((char *) hos.c_str(), exe, status);
             memset(exe, 0,sizeof(char)*100);
         }
     }
