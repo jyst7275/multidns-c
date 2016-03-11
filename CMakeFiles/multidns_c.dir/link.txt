@@ -1,0 +1,1 @@
+/usr/bin/c++    -std=c++11 -L/usr/local/lib/ -lboost_regex -pthread    CMakeFiles/multidns_c.dir/multidns.cpp.o CMakeFiles/multidns_c.dir/jsoncpp.cpp.o  -o multidns_c -rdynamic 

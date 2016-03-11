@@ -1,0 +1,1 @@
+/home/maxxie/ClionProjects/multidns-c/CMakeFiles/multidns_c.dir
