@@ -43,15 +43,17 @@ public:
 //            printf("%d %d\n", t, (unsigned char)buff[t]);
 
         while(i < buf_len) {
-            if (buff[i] == -64)
+            if ((unsigned char)buff[i] == 192)
                 i += 2;
             else if(buff[i] > 0 && buff[i] < 64) {
                 int new_i = parse_domain(buff, NULL, i, false);
                 if(new_i != -1)
                     i = new_i;
             }
-            else
+            else {
+                Logger::getLogger()->logInfo("Response Parsing Error");
                 return -1;
+            }
             int type = buff[i + 1];
             i += 8;
             int data_length = buff[i + 1];
@@ -79,9 +81,7 @@ public:
         return request_type;
     }
     std::list<char*> *get_response_ip(){
-        if(status == STATUS_RESPONSE)
-            return &response_ip;
-        return NULL;
+        return &response_ip;
     }
 
 private:
