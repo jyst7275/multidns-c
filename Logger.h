@@ -44,7 +44,7 @@ public:
 		response data
 		2016/1/20 23:32 >> google.com -> 216.58.196.42 from 8.8.8.8 or cached
 	*/
-	int logResponse(char* hostname,list<char*> *iplist,char* server, bool cached) {
+	int logResponse(char* hostname,list<std::pair<char*,int> > *iplist,char* server, bool cached) {
 		char currentTimeStr[20];
 		char* cacheString = "";
 		getTimeStr(currentTimeStr);
@@ -53,8 +53,10 @@ public:
 		fprintf(logStream, "%s >> %s -> ", currentTimeStr, hostname);
 		fprintf(logStream,"[");
 		if(iplist->size()>0)
-			for (char* s : *iplist)
+			for (std::pair<char*,int> m : *iplist) {
+				char* s = m.first;
 				fprintf(logStream, "%s,", s);
+			}
 		fprintf(logStream, "]");
 		fprintf(logStream, "%s\n",cacheString);
 		fflush(logStream);

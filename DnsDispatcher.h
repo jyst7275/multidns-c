@@ -150,12 +150,16 @@ public:
         strcpy(str, inet_ntoa(address.sin_addr));
         return str;
     }
-    int addRoute(std::list<char*> *l){
+    int addRoute(std::list<std::pair<char*,int> > *l){
         if(!redirect || use_cache)
             return 1;
         char* exe = new char[100];
         int status = 0;
-        for(char* c : *l){
+        for(std::pair<char*,int> b : *l){
+            int type = b.second;
+            char* c = b.first;
+            if(type != RESPONSE_TYPE_A)
+                continue;
             sprintf(exe, bash.c_str(), c);
             status = system(exe);
             Logger::getLogger()->logBash((char *) hos.c_str(), exe, status);

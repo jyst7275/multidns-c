@@ -58,13 +58,20 @@ public:
             i += 8;
             int data_length = buff[i + 1];
             i += 2;
-            if(type == RESPONSE_TYPE_A)
-                response_ip.push_back(parse_ip(i));
+            if(type == RESPONSE_TYPE_A) {
+                std::pair<char *, int> pa;
+                pa.first = parse_ip(i);
+                pa.second = RESPONSE_TYPE_A;
+                response_ip.push_back(pa);
+            }
             else{
                 char* tem = new char[64];
                 memset(tem, 0, sizeof(char)*64);
                 parse_domain(buff, tem, i, true, data_length);
-                response_ip.push_back(tem);
+                std::pair<char *,int> pa;
+                pa.first = tem;
+                pa.second = type;
+                response_ip.push_back(pa);
             }
             i += data_length;
         }
@@ -80,7 +87,7 @@ public:
             parse_request();
         return request_type;
     }
-    std::list<char*> *get_response_ip(){
+    std::list<std::pair<char*,int> > *get_response_ip(){
         return &response_ip;
     }
 
@@ -93,7 +100,7 @@ private:
     char* request_domain;
     char request_type;
     int buf_len;
-    std::list<char*> response_ip;
+    std::list<std::pair<char*,int> > response_ip;
     int request_end = 0;
     int parse_domain(char* src, char* dst, int start, bool copy = true, int length = 10000){
         int j = 0;
