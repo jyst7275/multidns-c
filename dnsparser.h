@@ -82,10 +82,8 @@ public:
             parse_request();
         return request_domain;
     }
-    char get_type(){
-        if(request_type == 0)
-            parse_request();
-        return request_type;
+    int get_type(){
+        return (int)request_type;
     }
     std::list<std::pair<char*,int> > *get_response_ip(){
         return &response_ip;

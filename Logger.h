@@ -33,12 +33,12 @@ public:
 		request data
 		2016/1/20 23:32 >> from ip:10.0.0.110 -> google.com
 	*/
-	int logRequest(sockaddr_in *ip, char* hostname, char* server) {
+	int logRequest(sockaddr_in *ip, char* hostname, int type, char* server) {
 		char currentTimeStr[20];
 		getTimeStr(currentTimeStr);
 		char* ip_str = new char[20];
 		strcpy(ip_str, inet_ntoa(ip->sin_addr));
-		fprintf(logStream, "%s >> from %s:%d -> %s -> %s\n", currentTimeStr, ip_str, ip->sin_port, hostname, server);
+		fprintf(logStream, "%s >> from %s:%d -> %s(TYPE:%d) -> %s\n", currentTimeStr, ip_str, ip->sin_port, hostname, type,server);
 	}
 	/*
 		response data

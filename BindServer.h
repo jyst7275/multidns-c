@@ -24,7 +24,7 @@ void* process(void *arg){
 	DnsParser dnsParser = DnsParser(buf->buf, buf->len);
 
 	DnsDispatcher thisDispatcher = DnsDispatcher::get_dispatcher(dnsParser.get_domain());
-	Logger::getLogger()->logRequest(buf->ipaddr, dnsParser.get_domain(), thisDispatcher.getAddressStr());
+	Logger::getLogger()->logRequest(buf->ipaddr, dnsParser.get_domain(), dnsParser.get_type(), thisDispatcher.getAddressStr());
 
 /*    sockaddr_in serverAddr = thisDispatcher.getAddress();
     buff tem ;
