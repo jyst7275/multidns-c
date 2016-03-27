@@ -165,6 +165,7 @@ public:
             if(type == RESPONSE_TYPE_CNAME) {
                 std::string st = c;
                 DnsDispatcher dnsRe(this->redirect,this->bash, this->address);
+                dnsRe.setHost(c);
                 resolve[st] = dnsRe;
             }
             if(type != RESPONSE_TYPE_A)
