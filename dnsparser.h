@@ -64,7 +64,7 @@ public:
                 pa.second = RESPONSE_TYPE_A;
                 response_ip.push_back(pa);
             }
-            else{
+            else if(type == RESPONSE_TYPE_CNAME){
                 char* tem = new char[64];
                 memset(tem, 0, sizeof(char)*64);
                 parse_domain(buff, tem, i, true, data_length);

@@ -49,6 +49,7 @@ private:
     static sockaddr_in defa;
     static std::list<std::pair<boost::regex, DnsDispatcher> > dispatcher;
     static std::map<std::string, Cache> cache;
+    static std::map<std::string, DnsDispatcher> resolve;
     static long av_time;
     static sockaddr_in bind;
     bool redirect;
@@ -57,7 +58,7 @@ private:
     std::string hos;
     bool use_cache;
 public:
-
+    DnsDispatcher(){}
     DnsDispatcher(bool re, std::string s, sockaddr_in addr):redirect(re),bash(s),address(addr){}
     ~DnsDispatcher(){}
     static int init(char* config){
@@ -121,6 +122,9 @@ public:
         return 0;
     }
     static DnsDispatcher get_dispatcher(char* host){
+        std::string st = host;
+        if(resolve.find(st) != resolve.end())
+            return resolve[st];
         for(std::pair<boost::regex, DnsDispatcher> p : dispatcher){
             if(boost::regex_match(host, p.first)) {
                 DnsDispatcher pat = p.second;
@@ -158,6 +162,11 @@ public:
         for(std::pair<char*,int> b : *l){
             int type = b.second;
             char* c = b.first;
+            if(type == RESPONSE_TYPE_CNAME) {
+                std::string st = c;
+                DnsDispatcher dnsRe(this->redirect,this->bash, this->address);
+                resolve[st] = dnsRe;
+            }
             if(type != RESPONSE_TYPE_A)
                 continue;
             sprintf(exe, bash.c_str(), c);
@@ -194,6 +203,7 @@ public:
 sockaddr_in DnsDispatcher::defa;
 std::list<std::pair<boost::regex, DnsDispatcher> > DnsDispatcher::dispatcher;
 std::map<std::string, Cache> DnsDispatcher::cache;
+std::map<std::string, DnsDispatcher> DnsDispatcher::resolve;
 long DnsDispatcher::av_time = 0;
 sockaddr_in DnsDispatcher::bind;
 #endif //MULTIDNS_C_DNSDISPATCHER_H
