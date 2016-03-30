@@ -2,7 +2,7 @@
 #include <signal.h>
 #include "Logger.h"
 #include "BindServer.h"
-
+#include <sys/wait.h>
 #define LOCKFILE "/var/run/multidns.pid"
 #define LOCKMODE (S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH)
 
@@ -15,7 +15,7 @@ int main(int argc, char* args[]) {
 	char* log_path = "/var/log/multi.log";
 	char* config_path = "/etc/multidns.json";
 	int daemon_mode = DAEMON_NOT;
-	char pid_buf[16];
+	char pid_buf[20];
 	int fd;
 	for (int i = 0; args[i] != NULL; i++) {
 		if (strcmp(args[i],"-d")==0) {
@@ -71,8 +71,10 @@ int main(int argc, char* args[]) {
 			return 0;
 		}
 		long pid_ld;
-		fscanf(fdopen(fd, "r"), "%ld", &pid_ld);
-		printf("pid %ld\n", pid_ld);
+		long pid_fa;
+		fscanf(fdopen(fd, "r"), "%ld %ld", &pid_fa, &pid_ld);
+		printf("pid %ld,%ld\n", pid_fa, pid_ld);
+		kill(pid_fa, SIGKILL);
 		kill(pid_ld, SIGKILL);
 		close(fd);
 		unlink(LOCKFILE);
@@ -92,21 +94,44 @@ int main(int argc, char* args[]) {
 		}
 		ftruncate(fd, 0);
 		pid_t pid;
+		pid_t pid_son;
+		pid_t pid_daemon;
 		pid = fork();
 		if(pid < 0)
 			exit(0);
-		else if(pid > 0) {
-			sprintf(pid_buf, "%ld", pid);
-			write(fd, pid_buf, strlen(pid_buf));
+		//father return
+		else if(pid > 0)
 			exit(0);
-		}
 		for(int i = 0;i < 3;i ++){
 			close(i);
 		}
 		int fd0 = open("/dev/null", O_RDWR);
 		int fd1 = dup(0);
 		int fd2 = dup(0);
-		Logger::getFileLogger(log_path);
+
+		Logger *logger = Logger::getFileLogger(log_path);
+		pid_daemon = getpid();
+		while(true){
+			pid_son = fork();
+			if(pid_son == 0)
+				break;
+			else if(pid_son < 0) {
+				//fork error
+				break;
+			}
+			else{
+				close(fd);
+				unlink(LOCKFILE);
+				fd = open(LOCKFILE, O_CREAT|O_RDWR|O_EXCL, LOCKFILE);
+				ftruncate(fd, 0);
+				bzero(pid_buf, sizeof(pid_buf));
+				sprintf(pid_buf, "%ld %ld", pid_daemon, pid_son);
+				write(fd, pid_buf, strlen(pid_buf));
+				logger->logInfo("Fork New Process");
+				waitpid(pid_son,NULL,0);
+			}
+		}
+
 	}
 
 	BindServer bindServer = BindServer(DnsDispatcher::get_bind());
